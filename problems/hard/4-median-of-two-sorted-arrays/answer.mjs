@@ -1,4 +1,3 @@
-// const printResult = require('../../../utils/answerUtil.mjs')
 import { printResult } from "../../../utils/answerUtil.mjs";
 
 /**
