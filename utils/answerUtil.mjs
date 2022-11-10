@@ -7,14 +7,13 @@ const start = chalk.green(`START`);
 
 console.log(`\n${space}${dash}${start}${dash}`);
 
-export const printResult = (answerCb, expected, input = {}) => {
+export const printResult = ({ answerCb, expected, input = {} } = {}) => {
     const inputPrint = beautifyJson(input);
     const actual = runAnswer(input, answerCb);
 
-    let answer = chalk.blue(`Accepted`);
-    if (`${expected}` !== `${actual}`) {
-        answer = chalk.red(`Wrong Answer`);
-    }
+    let answer;
+    if (`${expected}` === `${actual}`) answer = chalk.blue(`Accepted`);
+    else answer = chalk.red(`Wrong Answer`);
 
     console.log(`${space}${answer}
     Input:    ${inputPrint}

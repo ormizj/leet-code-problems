@@ -3,7 +3,7 @@
  * @param {number[]} nums2
  * @return {number}
  */
-var findMedianSortedArrays = function (nums1, nums2) {
+const findMedianSortedArrays = function (nums1, nums2) {
     nums1.push(...nums2);
     nums1.sort((num1, num2) => num1 - num2);
 
@@ -19,5 +19,5 @@ var findMedianSortedArrays = function (nums1, nums2) {
 
 /*----------------------------------------------------------------------------------------------------*/
 import { printResult } from "../../../utils/answerUtil.mjs";
-printResult(findMedianSortedArrays, 2.00000, { nums1: [1, 3], nums2: [2] });
-printResult(findMedianSortedArrays, 2.50000, { nums1: [1, 2], nums2: [3, 4] });
+printResult({ answerCb: findMedianSortedArrays, expected: 2.00000, input: { nums1: [1, 3], nums2: [2] } });
+printResult({ answerCb: findMedianSortedArrays, expected: 2.50000, input: { nums1: [1, 2], nums2: [3, 4] } });
