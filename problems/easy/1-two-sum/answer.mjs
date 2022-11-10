@@ -17,6 +17,9 @@ var twoSum = function (nums, target) {
     }
 };
 
+
+
+/*----------------------------------------------------------------------------------------------------*/
 import { printResult } from "../../../utils/answerUtil.mjs";
 printResult(twoSum, [0, 1], { nums: [2, 7, 11, 15], target: 9 });
 printResult(twoSum, [1, 2], { nums: [3, 2, 4], target: 6 });

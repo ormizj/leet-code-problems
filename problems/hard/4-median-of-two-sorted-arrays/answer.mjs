@@ -15,6 +15,9 @@ var findMedianSortedArrays = function (nums1, nums2) {
     return (nums1[halfLength - 1] + nums1[halfLength]) / 2;
 };
 
+
+
+/*----------------------------------------------------------------------------------------------------*/
 import { printResult } from "../../../utils/answerUtil.mjs";
 printResult(findMedianSortedArrays, 2.00000, { nums1: [1, 3], nums2: [2] });
 printResult(findMedianSortedArrays, 2.50000, { nums1: [1, 2], nums2: [3, 4] });
