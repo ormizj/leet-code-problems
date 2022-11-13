@@ -21,6 +21,6 @@ const twoSum = function (nums, target) {
 
 /*----------------------------------------------------------------------------------------------------*/
 import { printResult } from "../../../utils/answerUtil.mjs";
-printResult(twoSum, [0, 1], { nums: [2, 7, 11, 15], target: 9 });
-printResult(twoSum, [1, 2], { nums: [3, 2, 4], target: 6 });
-printResult(twoSum, [0, 1], { nums: [3, 3], target: 6 });
+printResult({ answerCb: twoSum, expected: [0, 1], input: { nums: [2, 7, 11, 15], target: 9 } });
+printResult({ answerCb: twoSum, expected: [1, 2], input: { nums: [3, 2, 4], target: 6 } });
+printResult({ answerCb: twoSum, expected: [0, 1], input: { nums: [3, 3], target: 6 } });
