@@ -9,6 +9,7 @@ export const vTypeOf = (any) => {
     return typeof any;
 }
 
+//TODO finish
 export const arrObjEqual = (any, oAny) => {
     if (any === oAny) return true;
     const type = vTypeOf(any);
@@ -21,6 +22,7 @@ export const arrObjEqual = (any, oAny) => {
     console.error(`arrObjEqual: Equal type not accounted for!`);
 }
 
+//TODO finish
 const arrEqualHelper = (arr, oArr) => {
     for (let index = 0; index < arr.length; index++) {
         const element = arr[index];
@@ -45,5 +47,23 @@ const arrEqualHelper = (arr, oArr) => {
     return true;
 }
 
+//TODO finish
 const objEqualHelper = (obj, oObj) => {
+}
+
+export const getProtoAttr = (any, attrType) => {
+    const properties = new Set();
+    let protoCurr = Object.getPrototypeOf(any);
+
+    while (protoCurr) {
+        Object.getOwnPropertyNames(protoCurr)
+            .map(attr => properties.add(attr));
+
+        protoCurr = Object.getPrototypeOf(protoCurr);
+    }
+
+    protoList = [...properties.keys()];
+
+    if (type === undefined) return protoList;
+    return protoList.filter(attr => vTypeOf(any[attr]) === attrType);
 }

@@ -51,6 +51,7 @@ const beautifyJson = (json) => {
     return beautifiedJson;
 }
 
+//TODO add order
 const calculateAnswer = ({ expected, actual, isOrder = false } = {}) => {
     const type = vTypeOf(expected);
 
