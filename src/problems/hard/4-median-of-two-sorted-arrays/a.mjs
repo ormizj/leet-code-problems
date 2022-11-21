@@ -18,6 +18,7 @@ const findMedianSortedArrays = function (nums1, nums2) {
 
 
 /*----------------------------------------------------------------------------------------------------*/
-import { printResult } from "../../../utils/answerUtil.mjs";
+import { printEnd, printResult } from "../../../utils/answerUtil.mjs";
 printResult({ answerCb: findMedianSortedArrays, expected: 2.00000, input: { nums1: [1, 3], nums2: [2] } });
 printResult({ answerCb: findMedianSortedArrays, expected: 2.50000, input: { nums1: [1, 2], nums2: [3, 4] } });
+printEnd();

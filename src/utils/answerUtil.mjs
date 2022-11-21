@@ -1,14 +1,17 @@
 import chalk from 'chalk';
-import { arrEqual } from './arrUtil.mjs';
+import { arrObjEqual } from './objUtil.mjs';
 import { vTypeOf } from './jsUtil.mjs';
-import { objForIn, objSize } from './objUtil.mjs';
+import { mapForIn, mapSize } from './mapUtil.mjs';
 import { strCompareAs } from './strUtil.mjs';
 
 const space = `    `;
 const dash = `----------`;
 const start = chalk.green(`START`);
+const end = chalk.green(`END`);
 
-console.log(`\n${space}${dash}${start}${dash}`);
+//prints, printing start on import
+console.log(`\n${space}${dash}${start}${dash}\n`);
+export const printEnd = () => setTimeout(() => console.log(`${space}${dash}-${end}-${dash}\n`));
 
 export const printResult = ({ answerCb, expected, input = {}, isOrder = false } = {}) => {
     const inputPrint = beautifyJson(input);
@@ -36,10 +39,10 @@ const runAnswer = (input = {}, answerCb) => {
 
 const beautifyJson = (json) => {
     let beautifiedJson = ``;
-    const jsonLength = objSize(json);
+    const jsonLength = mapSize(json);
 
     let index = 1;
-    objForIn(json, (value, key) => {
+    mapForIn(json, (value, key) => {
         beautifiedJson += `[${key}: ${value}]`;
 
         if (index < jsonLength) {
@@ -56,7 +59,7 @@ const calculateAnswer = ({ expected, actual, isOrder = false } = {}) => {
     const type = vTypeOf(expected);
 
     if (type === 'array') {
-        return arrEqual(expected, actual);
+        return arrObjEqual(expected, actual);
     }
 
     return strCompareAs(expected, actual);
