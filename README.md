@@ -1,3 +1,4 @@
 # leet-code-problems
 
-LeetCode problems i solved organized by difficulty
+See "algorithm-s" for continued version
+  https://github.com/spiderpig60/algorithm-s
