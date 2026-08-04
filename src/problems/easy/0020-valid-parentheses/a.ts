@@ -3,14 +3,13 @@
  * @return {boolean}
  */
 export const validParentheses = function (s: string): boolean {
-    s = s as '[' | '{' | '(';
-    const queue = [];
-    const openParentheses = {
+    const queue: string[] = [];
+    const openParentheses: Record<string, boolean> = {
         '(': true,
         '{': true,
         '[': true,
     };
-    const parenthesesMap = {
+    const parenthesesMap: Record<string, string> = {
         ')': '(',
         ']': '[',
         '}': '{'
