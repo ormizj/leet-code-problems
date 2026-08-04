@@ -1,5 +1,5 @@
-export const numToDigits = (num = 0) => {
-    let digits = [];
+export const numToDigits = (num: number = 0): number[] => {
+    let digits: number[] = [];
 
     do {
         digits.push(num % 10);

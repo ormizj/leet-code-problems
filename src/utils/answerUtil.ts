@@ -1,8 +1,17 @@
 import chalk from 'chalk';
-import { arrObjEqual } from './objUtil.mjs';
-import { vTypeOf } from './jsUtil.mjs';
-import { mapForIn, mapSize } from './mapUtil.mjs';
-import { strCompareAs } from './strUtil.mjs';
+import { arrObjEqual } from './objUtil.ts';
+import { vTypeOf } from './jsUtil.ts';
+import { mapForIn, mapSize } from './mapUtil.ts';
+import { strCompareAs } from './strUtil.ts';
+
+export type AnswerCb = (...args: any[]) => unknown;
+
+export type PrintResultOptions = {
+    answerCb: AnswerCb;
+    expected: unknown;
+    input?: Record<string, unknown>;
+    isOrder?: boolean;
+};
 
 const space = `    `;
 const dash = `----------`;
@@ -13,7 +22,7 @@ const end = chalk.green(`END`);
 console.log(`\n${space}${dash}${start}${dash}\n`);
 export const printEnd = () => setTimeout(() => console.log(`${space}${dash}-${end}-${dash}\n`));
 
-export const printResult = ({ answerCb, expected, input = {}, isOrder = false } = {}) => {
+export const printResult = ({ answerCb, expected, input = {}, isOrder = false }: PrintResultOptions) => {
     const inputPrint = beautifyJson(input);
     const actual = runAnswer(input, answerCb);
 
@@ -32,12 +41,12 @@ export const printResult = ({ answerCb, expected, input = {}, isOrder = false } 
     `);
 }
 
-const runAnswer = (input = {}, answerCb) => {
+const runAnswer = (input: Record<string, unknown> = {}, answerCb: AnswerCb): unknown => {
     const inputValues = Object.values(input);
     return answerCb.apply(null, inputValues);
 }
 
-const beautifyJson = (json) => {
+const beautifyJson = (json: Record<string, unknown>): string => {
     let beautifiedJson = ``;
     const jsonLength = mapSize(json);
 
@@ -54,8 +63,14 @@ const beautifyJson = (json) => {
     return beautifiedJson;
 }
 
+type CalculateAnswerOptions = {
+    expected: unknown;
+    actual: unknown;
+    isOrder?: boolean;
+};
+
 //TODO add order
-const calculateAnswer = ({ expected, actual, isOrder = false } = {}) => {
+const calculateAnswer = ({ expected, actual, isOrder = false }: CalculateAnswerOptions): boolean => {
     const type = vTypeOf(expected);
 
     if (type === 'array') {
