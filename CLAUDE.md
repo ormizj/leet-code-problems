@@ -4,82 +4,101 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-Personal LeetCode solutions in plain ESM JavaScript. Per `README.md`, this repo is superseded by
-https://github.com/spiderpig60/algorithm-s — treat it as archived. `TODO` at the root lists the known
-open gaps in the answer-checking harness.
+Personal LeetCode solutions in TypeScript, run with Node's built-in test runner. Actively used —
+the "superseded by algorithm-s" note is gone from `README.md`.
 
 ## Commands
 
-- `npm install` — required first. `node_modules` is not checked in and `chalk` is a hard runtime
-  dependency of `src/utils/answerUtil.ts`; without it every problem file throws `ERR_MODULE_NOT_FOUND`.
-- `node src/problems/<difficulty>/<id>-<slug>/a.mjs` — run a single problem. Each `a.mjs` is
-  self-executing and prints its own pass/fail table; this is the closest thing to a test.
-- `npm run typecheck` — `tsc --noEmit` over `src/utils`. The only check that reads the type
-  annotations; running a problem file never type-checks anything.
-- `npx nodemon src/problems/<difficulty>/<id>-<slug>/a.mjs` — re-run on save while iterating.
-  `nodemonConfig.ext` in `package.json` widens the watch list to `mjs,ts,json`; without it nodemon
-  ignores util edits.
-- There is no test framework, linter, or **build step**. `npm test` is the npm placeholder and
-  intentionally exits 1 — it is not the test command.
+`npm run help` prints all of these plus the current problem list; it derives both from
+`package.json` and the filesystem, so prefer it over trusting any hardcoded list.
+
+- **No `npm install` needed to run tests.** There are zero runtime dependencies. `npm install` only
+  fetches `typescript` and `@types/node`, which `npm run typecheck` needs.
+- `npm test` — run every problem. Real exit code: 0 green, 1 on any failure.
+- `npm run t -- <id|slug>` — run one problem, e.g. `npm run t -- 1`, `npm run t -- two-sum`.
+  Matches the LeetCode id first (`1` and `0001` both work), then a slug substring. Append `--watch`
+  to re-run on save. The difficulty tier is never part of the query.
+- `npm run test:watch` — every problem, re-running on save.
+- `npm run new -- <id> <slug> [difficulty]` — scaffold a problem folder. Refuses to overwrite.
+- `npm run typecheck` — `tsc --noEmit` over `src` and `scripts`.
+- No linter and no build step.
+
+`node --test <dir>` does **not** work on Node 24 — a positional argument is resolved as a module
+path and a directory fails with `Cannot find module`. Pass explicit files or a quoted glob. This is
+why `scripts/run.js` resolves problems to file paths rather than handing `node` a directory.
 
 ## Layout
 
-- `src/problems/{easy,medium,hard}/<leetcode-id>-<kebab-case-title>/` with two files: `a.mjs` (answer)
-  and `q.md` (problem statement pasted from LeetCode, inline HTML tags left intact).
+- `src/problems/{easy,medium,hard}/<4-digit-id>-<kebab-case-title>/` with three files:
+  - `q.md` — problem statement pasted from LeetCode, inline HTML tags left intact.
+  - `a.ts` — the solution(s). **Exports only, no side effects** — importing it must run nothing.
+  - `a.test.ts` — the cases, nothing else.
+- Ids are zero-padded to 4 digits so directories sort numerically. The tier folders are for
+  browsing only; nothing at runtime depends on which one a problem is in.
 - `src/utils/*.ts` — one helper file per value type (`arrUtil`, `strUtil`, `numUtil`, `mapUtil`,
-  `objUtil`, `jsUtil`) plus `answerUtil` (the harness). `arrUtil.ts` is still an empty placeholder
-  (`export {}`); prefer filling it over adding new util files. Array/object deep equality lives in
-  `objUtil.ts`, not `arrUtil.ts` — moving it would make the two modules import each other.
-- `assets/snippets.md` — copy-paste boilerplate for the harness block; keep it in sync if the
-  `printResult` signature changes.
+  `jsUtil`) plus `testUtil` (the harness) and its own `testUtil.test.ts`.
+- `scripts/*.js` — plain JS (not type-stripped TS, since they are the tooling). `problems.js` is the
+  shared filesystem scanner behind `help.js`, `run.js` and `new.js`; add problem-discovery logic
+  there rather than duplicating a scan.
 
-## `a.mjs` convention
+## `a.ts` convention
 
-1. LeetCode's JSDoc block, then the solution as `const <camelCaseName> = function (...) {...}`
-   (the shape LeetCode hands you).
-2. Alternative solutions below it as `<name>2`, `<name>3`; local helpers as arrow consts.
-3. A separator line (`/*---…---*/`, 100 dashes), then
-   `import { printEnd, printResult } from '#utils/answerUtil.ts';` and one `printResult(...)`
-   per LeetCode example. The bottom-of-file import is deliberate and works because ESM imports hoist —
-   keep it there. Utils are always reached through the root-relative `#utils/` subpath alias, never
-   `../../../utils/`; the extension is `.ts` (problem files stay `.mjs`; only the utils they import
-   are TypeScript).
-4. `printEnd()` last.
+1. LeetCode's JSDoc block, kept as-is, then the solution as
+   `export const <camelCaseName> = function (...) {...}` (the shape LeetCode hands you) with TS
+   parameter and return types added.
+2. Alternative solutions below it as `<name>2`, `<name>3` — also exported, so the harness can run
+   them. Local helpers stay unexported arrow consts.
+3. Nothing else. No imports, no separator line, no printing.
 
-## `answerUtil` semantics
+If a solution can fall through without returning (`twoSum` does), type the return as
+`T | undefined` rather than adding a `return` LeetCode never asked for.
 
-- `printResult({ answerCb, expected, input = {}, isOrder = false })` calls
-  `answerCb.apply(null, Object.values(input))`, so **key order in `input` must match the solution's
-  parameter order**; the keys themselves only label the printed output.
-- Comparison (`calculateAnswer`): if `expected` is an array → `arrObjEqual` (`src/utils/objUtil.ts`);
-  otherwise `strCompareAs` (`src/utils/strUtil.ts`), a stringified `===`, so `2`, `2.00000` and `"2"`
-  all match. `isOrder` is accepted but not yet implemented.
-- `expected` must therefore be the **same shape the solution returns**. Wrapping a scalar return in an
-  array makes `arrObjEqual` compare an array against a string and report "Wrong Answer".
-- `arrObjEqual` is a real deep-equal now: length-checked, recurses through nested arrays and objects
-  (`objEqualHelper` compares own-enumerable keys), and falls back to `strCompareAs` for same-typed
-  scalars. Values of differing `vTypeOf` are never equal.
-- `isOrder` is accepted by `printResult`/`calculateAnswer` but still unimplemented — a known `TODO`.
-- Importing `answerUtil.ts` prints the green `START` banner as an import side effect; `printEnd()`
-  defers the `END` banner via `setTimeout` so it lands after all synchronous output.
+## `a.test.ts` convention
 
-## TypeScript in `src/utils`
+```ts
+import { solve } from '#utils/testUtil.ts';
+import { twoSum, twoSum2 } from './a.ts';
 
-The utils are `.ts` and run with **no build step** — Node ≥22.18 strips types natively
-(`process.features.typescript === 'strip'`). `package.json` sets `"type": "module"`, so `.ts` files are
-ESM. Three rules keep this working; breaking them fails at `node` runtime, not just in the editor:
+solve('1. Two Sum', { twoSum, twoSum2 }, [
+    { args: [[2, 7, 11, 15], 9], expected: [0, 1] },
+]);
+```
 
-- **Erasable syntax only.** No `enum`, no `namespace`, no constructor parameter properties — types must
-  vanish without code generation. `erasableSyntaxOnly` in `tsconfig.json` enforces it.
-- **Internal imports carry the `.ts` extension** (`#utils/jsUtil.ts`). Node does not resolve
-  extensionless specifiers here; `allowImportingTsExtensions` lets `tsc` accept them.
-- **Internal imports go through `#utils/`**, mapped by the `imports` field in `package.json`
-  (`"#utils/*": "./src/utils/*"`) — this holds inside `src/utils` too, not just in problem files.
-- **Type-only imports use `import type`** (`verbatimModuleSyntax`), so nothing dangles after stripping.
+`solve(title, solutions, cases)` runs **every case against every solution variant** — never
+duplicate a case list per variant. Adding `<name>2` to the `solutions` object is the whole cost of
+testing a second approach.
 
-`tsconfig.json` is `noEmit` and scoped to `src/utils` — the `.mjs` problem files are never type-checked.
+`args` is positional and maps directly onto the parameters. Each solution gets a `structuredClone`
+of `args`, so a solution that mutates its input (`findMedianSortedArrays` pushes into `nums1`)
+cannot corrupt the next variant. `structuredClone` cannot clone functions.
+
+`Case` options, all optional:
+
+- `compare: 'deep'` (default) — `assert.deepStrictEqual`. Strict: `'2'` no longer matches `2`.
+  LeetCode's `2.00000` is just `2` in JS, so it needs nothing special.
+- `compare: 'unordered'` — sorts both sides (nested arrays inside-out) before comparing.
+- `compare: 'approx'` — numeric, `epsilon` defaults to `1e-9`. For float accumulation.
+- `mutates: <index>` — assert on `args[index]` after the call instead of the return value, for
+  in-place/void solutions.
+- `name` — replaces the auto-generated `case N: (args) → expected` label.
+- `skip` / `only`.
+
+## TypeScript
+
+Everything under `src` is `.ts` and runs with **no build step** — Node ≥22.18 strips types natively.
+`package.json` sets `"type": "module"`. Three rules keep this working; breaking them fails at `node`
+runtime, not just in the editor:
+
+- **Erasable syntax only.** No `enum`, no `namespace`, no constructor parameter properties.
+  `erasableSyntaxOnly` in `tsconfig.json` enforces it.
+- **Imports carry the `.ts` extension.** Node does not resolve extensionless specifiers here;
+  `allowImportingTsExtensions` lets `tsc` accept them.
+- **Utils are reached through `#utils/`**, mapped by the `imports` field in `package.json`
+  (`"#utils/*": "./src/utils/*"`), never `../../../utils/`. A problem's own `a.ts` is imported
+  relatively (`./a.ts`).
+- **Type-only imports use `import type`** (`verbatimModuleSyntax`).
 
 ## Style
 
 4-space indent, semicolons, single quotes or backticks, `const` arrow functions for helpers.
-Problem files stay plain JavaScript. No comments beyond LeetCode's JSDoc and short `//` notes.
+No comments beyond LeetCode's JSDoc and short `//` notes.

@@ -1,0 +1,33 @@
+import { readFileSync } from 'node:fs';
+import { printProblems, listProblems } from './problems.js';
+
+const { scripts = {} } = JSON.parse(readFileSync('package.json', 'utf8'));
+
+//only the blurb lives here — the command list itself comes from package.json,
+//so a script added there shows up even without a matching entry
+const blurbs = {
+    help: ['show this message', 'npm run help'],
+    test: ['run every problem', 'npm test'],
+    'test:watch': ['run every problem, re-running on save', 'npm run test:watch'],
+    t: ['run one problem, by id or slug', 'npm run t -- 1'],
+    new: ['scaffold a new problem folder', 'npm run new -- 2 add-two-numbers medium'],
+    typecheck: ['type-check src and scripts', 'npm run typecheck'],
+};
+
+const names = Object.keys(scripts);
+const width = Math.max(...names.map((name) => (blurbs[name]?.[1] ?? `npm run ${name}`).length));
+
+console.log('\nleet-code — LeetCode solutions, one folder per problem\n');
+console.log('Commands:');
+
+for (const name of names) {
+    const [blurb, example] = blurbs[name] ?? ['', `npm run ${name}`];
+    console.log(`  ${example.padEnd(width)}  ${blurb}`);
+}
+
+console.log('\nEach problem folder holds q.md (statement), a.ts (solutions) and a.test.ts (cases).');
+console.log('a.ts exports every solution variant; solve() in a.test.ts runs all cases against all of them.\n');
+
+console.log(`Problems (${listProblems().length}):`);
+printProblems();
+console.log('');

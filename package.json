@@ -8,20 +8,17 @@
     "#utils/*": "./src/utils/*"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "help": "node scripts/help.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch",
+    "t": "node scripts/run.js",
+    "new": "node scripts/new.js",
     "typecheck": "tsc --noEmit"
-  },
-  "nodemonConfig": {
-    "ext": "mjs,ts,json"
   },
   "author": "Or Mizrahi",
   "license": "ISC",
-  "dependencies": {
-    "chalk": "5.1.2"
-  },
   "devDependencies": {
     "@types/node": "^24.13.3",
-    "nodemon": "^2.0.20",
     "typescript": "^5.9.3"
   }
 }
