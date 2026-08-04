@@ -4,6 +4,9 @@
   "description": "LeetCode problems i solved organized by difficulty",
   "main": "index.js",
   "type": "module",
+  "imports": {
+    "#utils/*": "./src/utils/*"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit"

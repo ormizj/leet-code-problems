@@ -1,7 +1,7 @@
-import { vTypeOf } from "./jsUtil.ts";
-import type { VType } from "./jsUtil.ts";
-import { mapSize } from "./mapUtil.ts";
-import { strCompareAs } from "./strUtil.ts";
+import { vTypeOf } from '#utils/jsUtil.ts';
+import type { VType } from '#utils/jsUtil.ts';
+import { mapSize } from '#utils/mapUtil.ts';
+import { strCompareAs } from '#utils/strUtil.ts';
 
 export const arrObjEqual = (any: unknown, oAny: unknown): boolean => {
     if (any === oAny) return true;

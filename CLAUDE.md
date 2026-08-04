@@ -39,10 +39,11 @@ open gaps in the answer-checking harness.
    (the shape LeetCode hands you).
 2. Alternative solutions below it as `<name>2`, `<name>3`; local helpers as arrow consts.
 3. A separator line (`/*---…---*/`, 100 dashes), then
-   `import { printEnd, printResult } from "../../../utils/answerUtil.ts";` and one `printResult(...)`
+   `import { printEnd, printResult } from '#utils/answerUtil.ts';` and one `printResult(...)`
    per LeetCode example. The bottom-of-file import is deliberate and works because ESM imports hoist —
-   keep it there. The relative depth is always `../../../utils/`, and the extension is `.ts` (problem
-   files stay `.mjs`; only the utils they import are TypeScript).
+   keep it there. Utils are always reached through the root-relative `#utils/` subpath alias, never
+   `../../../utils/`; the extension is `.ts` (problem files stay `.mjs`; only the utils they import
+   are TypeScript).
 4. `printEnd()` last.
 
 ## `answerUtil` semantics
@@ -50,8 +51,8 @@ open gaps in the answer-checking harness.
 - `printResult({ answerCb, expected, input = {}, isOrder = false })` calls
   `answerCb.apply(null, Object.values(input))`, so **key order in `input` must match the solution's
   parameter order**; the keys themselves only label the printed output.
-- Comparison (`calculateAnswer`): if `expected` is an array → `arrObjEqual` (`src/utils/objUtil.mjs`);
-  otherwise `strCompareAs` (`src/utils/strUtil.mjs`), a stringified `===`, so `2`, `2.00000` and `"2"`
+- Comparison (`calculateAnswer`): if `expected` is an array → `arrObjEqual` (`src/utils/objUtil.ts`);
+  otherwise `strCompareAs` (`src/utils/strUtil.ts`), a stringified `===`, so `2`, `2.00000` and `"2"`
   all match. `isOrder` is accepted but not yet implemented.
 - `expected` must therefore be the **same shape the solution returns**. Wrapping a scalar return in an
   array makes `arrObjEqual` compare an array against a string and report "Wrong Answer".
@@ -70,8 +71,10 @@ ESM. Three rules keep this working; breaking them fails at `node` runtime, not j
 
 - **Erasable syntax only.** No `enum`, no `namespace`, no constructor parameter properties — types must
   vanish without code generation. `erasableSyntaxOnly` in `tsconfig.json` enforces it.
-- **Relative imports carry the `.ts` extension** (`./jsUtil.ts`). Node does not resolve extensionless
-  specifiers here; `allowImportingTsExtensions` lets `tsc` accept them.
+- **Internal imports carry the `.ts` extension** (`#utils/jsUtil.ts`). Node does not resolve
+  extensionless specifiers here; `allowImportingTsExtensions` lets `tsc` accept them.
+- **Internal imports go through `#utils/`**, mapped by the `imports` field in `package.json`
+  (`"#utils/*": "./src/utils/*"`) — this holds inside `src/utils` too, not just in problem files.
 - **Type-only imports use `import type`** (`verbatimModuleSyntax`), so nothing dangles after stripping.
 
 `tsconfig.json` is `noEmit` and scoped to `src/utils` — the `.mjs` problem files are never type-checked.

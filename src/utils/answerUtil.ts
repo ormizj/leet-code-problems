@@ -1,8 +1,8 @@
 import chalk from 'chalk';
-import { arrObjEqual } from './objUtil.ts';
-import { vTypeOf } from './jsUtil.ts';
-import { mapForIn, mapSize } from './mapUtil.ts';
-import { strCompareAs } from './strUtil.ts';
+import { arrObjEqual } from '#utils/objUtil.ts';
+import { vTypeOf } from '#utils/jsUtil.ts';
+import { mapForIn, mapSize } from '#utils/mapUtil.ts';
+import { strCompareAs } from '#utils/strUtil.ts';
 
 export type AnswerCb = (...args: any[]) => unknown;
 
