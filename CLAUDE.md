@@ -19,7 +19,9 @@ the "superseded by algorithm-s" note is gone from `README.md`.
   tier is never part of the query. Real exit code: 0 green, 1 on any failure.
 - `npm run solve:watch <id|slug>` — the same, re-running on save.
 - `npm run solve harness` — the checks for `solve()` itself (`src/utils/testUtil.test.ts`).
-- `npm run new <id> <slug> [difficulty]` — scaffold a problem folder. Refuses to overwrite.
+- `npm run new:easy|new:medium|new:hard <id> <slug>` — scaffold a problem folder. The difficulty is
+  the script name, so it can never be omitted; `<id>` and `<slug>` are both mandatory. Refuses to
+  overwrite, including when the same problem already exists under another difficulty.
 - `npm run typecheck` — `tsc --noEmit` over `src` and `scripts`.
 - No linter and no build step.
 

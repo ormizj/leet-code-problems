@@ -9,7 +9,9 @@ const blurbs = {
     help: ['show this message', 'npm run help'],
     solve: ['run one problem, by id or slug', 'npm run solve 1'],
     'solve:watch': ['same, re-running on save', 'npm run solve:watch 1'],
-    new: ['scaffold a new problem folder', 'npm run new 2 add-two-numbers medium'],
+    'new:easy': ['scaffold a new problem folder', 'npm run new:easy 1 two-sum'],
+    'new:medium': ['same, under medium/', 'npm run new:medium 2 add-two-numbers'],
+    'new:hard': ['same, under hard/', 'npm run new:hard 4 median-of-two-sorted-arrays'],
     typecheck: ['type-check src and scripts', 'npm run typecheck'],
 };
 

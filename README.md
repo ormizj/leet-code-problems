@@ -10,7 +10,7 @@ npm run help                    # every command, plus the current problem list
 npm run solve 1                 # run one problem, by id...
 npm run solve two-sum           # ...or by slug
 npm run solve:watch 1           # re-run on save
-npm run new 2 add-two-numbers medium
+npm run new:medium 2 add-two-numbers    # scaffold (also new:easy, new:hard)
 ```
 
 There is no run-everything command — you work on one problem at a time.

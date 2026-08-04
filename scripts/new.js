@@ -9,29 +9,31 @@ import {
     listDifficulties,
 } from './problems.js';
 
-const [id, slug, difficulty = 'easy'] = process.argv.slice(2);
+//difficulty comes from the script name (new:easy), the rest from the caller
+const [difficulty, id, slug] = process.argv.slice(2);
 
-const usage = 'Usage: npm run new <id> <kebab-case-slug> [easy|medium|hard]';
+const known = ['easy', 'medium', 'hard'];
+const usage = `Usage: npm run new:<${known.join('|')}> <id> <kebab-case-slug>
+Example: npm run new:medium 2 add-two-numbers`;
 
-if (id === undefined || slug === undefined) {
-    console.error(usage);
+const reject = (message) => {
+    console.error(`${message}\n\n${usage}`);
     process.exit(1);
 }
 
+if (!known.includes(difficulty)) {
+    reject(`Missing or unknown difficulty: ${difficulty ?? '(none)'}`);
+}
+
+if (id === undefined) reject('Missing <id>');
+if (slug === undefined) reject('Missing <kebab-case-slug>');
+
 if (!/^\d+$/.test(id)) {
-    console.error(`Invalid id: ${id}\n${usage}`);
-    process.exit(1);
+    reject(`Invalid id: ${id} — expected digits only`);
 }
 
 if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
-    console.error(`Invalid slug: ${slug} — use kebab-case, e.g. two-sum\n${usage}`);
-    process.exit(1);
-}
-
-const known = ['easy', 'medium', 'hard'];
-if (!known.includes(difficulty)) {
-    console.error(`Invalid difficulty: ${difficulty} — expected ${known.join(', ')}\n${usage}`);
-    process.exit(1);
+    reject(`Invalid slug: ${slug} — use kebab-case, e.g. two-sum`);
 }
 
 const camelCase = (kebab) =>
