@@ -57,9 +57,14 @@ if (runnable.length > 1) {
     console.log('');
 }
 
+//opt out by passing your own --test-reporter, e.g. the built-in spec
+const reporter = flags.some((flag) => flag.startsWith('--test-reporter'))
+    ? []
+    : [`--test-reporter=${new URL('./reporter.js', import.meta.url)}`];
+
 const { status } = spawnSync(
     process.execPath,
-    ['--test', ...flags, ...runnable.map((target) => target.testFile)],
+    ['--test', ...reporter, ...flags, ...runnable.map((target) => target.testFile)],
     { stdio: 'inherit' }
 );
 

@@ -68,11 +68,13 @@ https://leetcode.com/problems/${slug}/
 <!-- paste the problem statement here -->
 `;
 
+//an explicit any keeps a fresh scaffold passing `npm run typecheck`;
+//replace it with the real signature from LeetCode's JSDoc
 const answer = `/**
  * @param {*} input
  * @return {*}
  */
-export const ${name} = function (input) {
+export const ${name} = function (input: any): any {
 
 };
 `;
@@ -81,7 +83,11 @@ const test = `import { solve } from '#utils/testUtil.ts';
 import { ${name} } from './${answerFileName}';
 
 solve('${title}', { ${name} }, [
-    { args: [], expected: undefined, skip: true },
+    {
+        args: [],
+        expected: undefined,
+        skip: false,
+    },
 ]);
 `;
 

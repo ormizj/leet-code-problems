@@ -49,6 +49,23 @@ why `scripts/run.js` resolves problems to file paths rather than handing `node` 
 - `scripts/*.js` — plain JS (not type-stripped TS, since they are the tooling). `problems.js` is the
   shared filesystem scanner behind `help.js`, `run.js` and `new.js`; add problem-discovery logic
   there rather than duplicating a scan.
+- `scripts/reporter.js` — a custom `node:test` reporter that `run.js` passes via `--test-reporter`.
+
+## Test output
+
+The reporter exists because the built-in `spec` reporter prints a full stack trace and a dumped
+error object for every failed assertion, which buries the actual information. It:
+
+- Shows **`expected` / `actual` and no stack** for a failed assertion — a wrong answer is not a
+  crash. A thrown error still gets a stack, trimmed to frames in this repo's own `src/`.
+- Lists **passes first and failures last** within each solution, so the failures sit next to the
+  summary line instead of scattered through the output.
+- Buffers results and prints on the run-level `test:summary` event (the one with no `file`), which
+  is what makes the reordering possible. Watch mode reuses one reporter instance across runs, so
+  the buffers are reset after each summary — a leak there shows up as duplicated output.
+
+Pass your own `--test-reporter` to opt out, e.g. `npm run solve 1 --test-reporter=spec` (that one
+needs `--`, since npm eats leading flags).
 
 ## `a.ts` convention
 
