@@ -6,13 +6,14 @@ Needs Node ≥ 22.18 (native TypeScript type stripping). There are **no runtime 
 can clone and run the tests without `npm install`.
 
 ```sh
-npm run help              # every command, plus the current problem list
-npm test                  # run every problem
-npm run t -- 1            # run one problem, by id...
-npm run t -- two-sum      # ...or by slug
-npm run t -- 1 --watch    # re-run on save
-npm run new -- 2 add-two-numbers medium
+npm run help                    # every command, plus the current problem list
+npm run solve 1                 # run one problem, by id...
+npm run solve two-sum           # ...or by slug
+npm run solve:watch 1           # re-run on save
+npm run new 2 add-two-numbers medium
 ```
+
+There is no run-everything command — you work on one problem at a time.
 
 ## Layout
 
@@ -46,4 +47,5 @@ solve('1. Two Sum', { twoSum, twoSum2 }, [
 
 `args` is positional. Comparison is `assert.deepStrictEqual` by default; per case you can opt into
 `compare: 'unordered'`, `compare: 'approx'` (with `epsilon`), or `mutates: <argIndex>` for in-place
-solutions that return nothing. See `src/utils/testUtil.test.ts` for one worked example of each.
+solutions that return nothing. `src/utils/testUtil.test.ts` has one worked example of each and runs
+with `npm run solve harness`.

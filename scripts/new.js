@@ -11,7 +11,7 @@ import {
 
 const [id, slug, difficulty = 'easy'] = process.argv.slice(2);
 
-const usage = 'Usage: npm run new -- <id> <kebab-case-slug> [easy|medium|hard]';
+const usage = 'Usage: npm run new <id> <kebab-case-slug> [easy|medium|hard]';
 
 if (id === undefined || slug === undefined) {
     console.error(usage);
@@ -90,4 +90,4 @@ writeFileSync(join(dir, testFileName), test);
 
 console.log(`Created ${dir}`);
 console.log(`  ${questionFileName}  ${answerFileName}  ${testFileName}`);
-console.log(`\nRun it with: npm run t -- ${Number(id)}`);
+console.log(`\nRun it with: npm run solve ${Number(id)}`);

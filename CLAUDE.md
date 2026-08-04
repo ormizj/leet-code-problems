@@ -14,14 +14,21 @@ the "superseded by algorithm-s" note is gone from `README.md`.
 
 - **No `npm install` needed to run tests.** There are zero runtime dependencies. `npm install` only
   fetches `typescript` and `@types/node`, which `npm run typecheck` needs.
-- `npm test` — run every problem. Real exit code: 0 green, 1 on any failure.
-- `npm run t -- <id|slug>` — run one problem, e.g. `npm run t -- 1`, `npm run t -- two-sum`.
-  Matches the LeetCode id first (`1` and `0001` both work), then a slug substring. Append `--watch`
-  to re-run on save. The difficulty tier is never part of the query.
-- `npm run test:watch` — every problem, re-running on save.
-- `npm run new -- <id> <slug> [difficulty]` — scaffold a problem folder. Refuses to overwrite.
+- `npm run solve <id|slug>` — run one problem, e.g. `npm run solve 1`, `npm run solve two-sum`.
+  Matches the LeetCode id first (`1` and `0001` both work), then a slug substring. The difficulty
+  tier is never part of the query. Real exit code: 0 green, 1 on any failure.
+- `npm run solve:watch <id|slug>` — the same, re-running on save.
+- `npm run solve harness` — the checks for `solve()` itself (`src/utils/testUtil.test.ts`).
+- `npm run new <id> <slug> [difficulty]` — scaffold a problem folder. Refuses to overwrite.
 - `npm run typecheck` — `tsc --noEmit` over `src` and `scripts`.
 - No linter and no build step.
+
+**There is deliberately no run-everything command.** You work one problem at a time; a suite-wide
+run was removed as noise. Nothing verifies every problem at once — if you need that after a
+refactor of `src/utils`, run `node --test` manually.
+
+`--` is not needed to pass arguments (`npm run solve 1` works). It *is* needed for raw flags —
+npm swallows a bare `--watch`, which is why `solve:watch` exists as its own script.
 
 `node --test <dir>` does **not** work on Node 24 — a positional argument is resolved as a module
 path and a directory fails with `Cannot find module`. Pass explicit files or a quoted glob. This is

@@ -7,6 +7,12 @@ export const answerFileName = 'a.ts';
 export const questionFileName = 'q.md';
 export const idWidth = 4;
 
+//not a problem, but worth being able to run the same way
+export const harness = {
+    aliases: ['harness', 'testutil'],
+    testFile: join('src', 'utils', 'testUtil.test.ts'),
+};
+
 export const padId = (id) => `${Number(id)}`.padStart(idWidth, '0');
 
 const dirsIn = (path) =>

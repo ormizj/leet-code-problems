@@ -9,9 +9,8 @@
   },
   "scripts": {
     "help": "node scripts/help.js",
-    "test": "node --test",
-    "test:watch": "node --test --watch",
-    "t": "node scripts/run.js",
+    "solve": "node scripts/run.js",
+    "solve:watch": "node scripts/run.js --watch",
     "new": "node scripts/new.js",
     "typecheck": "tsc --noEmit"
   },

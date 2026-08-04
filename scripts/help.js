@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { printProblems, listProblems } from './problems.js';
+import { printProblems, listProblems, harness } from './problems.js';
 
 const { scripts = {} } = JSON.parse(readFileSync('package.json', 'utf8'));
 
@@ -7,10 +7,9 @@ const { scripts = {} } = JSON.parse(readFileSync('package.json', 'utf8'));
 //so a script added there shows up even without a matching entry
 const blurbs = {
     help: ['show this message', 'npm run help'],
-    test: ['run every problem', 'npm test'],
-    'test:watch': ['run every problem, re-running on save', 'npm run test:watch'],
-    t: ['run one problem, by id or slug', 'npm run t -- 1'],
-    new: ['scaffold a new problem folder', 'npm run new -- 2 add-two-numbers medium'],
+    solve: ['run one problem, by id or slug', 'npm run solve 1'],
+    'solve:watch': ['same, re-running on save', 'npm run solve:watch 1'],
+    new: ['scaffold a new problem folder', 'npm run new 2 add-two-numbers medium'],
     typecheck: ['type-check src and scripts', 'npm run typecheck'],
 };
 
@@ -24,6 +23,9 @@ for (const name of names) {
     const [blurb, example] = blurbs[name] ?? ['', `npm run ${name}`];
     console.log(`  ${example.padEnd(width)}  ${blurb}`);
 }
+
+console.log('');
+console.log(`  ${`npm run solve ${harness.aliases[0]}`.padEnd(width)}  the checks for solve() itself`);
 
 console.log('\nEach problem folder holds q.md (statement), a.ts (solutions) and a.test.ts (cases).');
 console.log('a.ts exports every solution variant; solve() in a.test.ts runs all cases against all of them.\n');
