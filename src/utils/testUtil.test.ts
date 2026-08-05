@@ -1,4 +1,5 @@
 import { solve } from '#utils/testUtil.ts';
+import { toList, fromList, toTree, fromTree, ListNode } from '#utils/nodeUtil.ts';
 
 //guards the harness itself — each case exercises one option of `solve`
 
@@ -6,6 +7,10 @@ const identity = (any: unknown) => any;
 const sum = (num: number, oNum: number) => num + oNum;
 const sortInPlace = (nums: number[]) => { nums.sort((num, oNum) => num - oNum); };
 const pairs = (nums: number[]) => nums.map((num) => [num, num]);
+
+//returns nodes spliced out of its argument, which structuredClone left prototype-less —
+//exactly the shape `serialize` exists for
+const tail = (node: ListNode | null) => node?.next ?? null;
 
 solve('testUtil: deep', { identity }, [
     { args: [[[1, 2], [3]]], expected: [[1, 2], [3]] },
@@ -29,6 +34,16 @@ solve('testUtil: approx', { sum }, [
 //sortInPlace returns undefined, so the assertion targets args[0] instead
 solve('testUtil: mutates', { sortInPlace }, [
     { args: [[3, 1, 2]], expected: [1, 2, 3], mutates: 0 },
+]);
+
+//node graphs are compared in their array form, so a prototype-less return still matches
+solve('testUtil: serialize list', { tail }, [
+    { args: [toList([1, 2, 3])], expected: [2, 3], serialize: fromList },
+    { args: [toList([1])], expected: [], serialize: fromList },
+]);
+
+solve('testUtil: serialize tree', { identity }, [
+    { args: [toTree([1, null, 2, 3])], expected: [1, null, 2, 3], serialize: fromTree },
 ]);
 
 solve('testUtil: name and skip', { identity }, [

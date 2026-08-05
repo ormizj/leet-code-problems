@@ -66,7 +66,7 @@ export const printProblems = (log = console.log) => {
     const problems = listProblems();
 
     if (problems.length === 0) {
-        log('  no problems yet — run: npm run new -- <id> <slug> <difficulty>');
+        log('  no problems yet — run: npm run new <leetcode-url>');
         return;
     }
 

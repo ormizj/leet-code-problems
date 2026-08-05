@@ -10,8 +10,14 @@ npm run help                    # every command, plus the current problem list
 npm run solve 1                 # run one problem, by id...
 npm run solve two-sum           # ...or by slug
 npm run solve:watch 1           # re-run on save
-npm run new:medium 2 add-two-numbers    # scaffold (also new:easy, new:hard)
+npm run new https://leetcode.com/problems/two-sum/   # scaffold from LeetCode, cases included
+npm run new:medium 2 add-two-numbers    # scaffold an empty folder (also new:easy, new:hard)
 ```
+
+`npm run new <url>` fetches the problem and writes all three files: the statement into `q.md` with
+the source URL on top, LeetCode's JSDoc and TypeScript signature into `a.ts`, and every example from
+the statement into `a.test.ts` as a real case. The id, title and difficulty come from LeetCode, so
+there is nothing to type. It warns rather than guessing when an example cannot be represented.
 
 There is no run-everything command — you work on one problem at a time.
 
@@ -46,6 +52,8 @@ solve('1. Two Sum', { twoSum, twoSum2 }, [
 ```
 
 `args` is positional. Comparison is `assert.deepStrictEqual` by default; per case you can opt into
-`compare: 'unordered'`, `compare: 'approx'` (with `epsilon`), or `mutates: <argIndex>` for in-place
-solutions that return nothing. `src/utils/testUtil.test.ts` has one worked example of each and runs
-with `npm run solve harness`.
+`compare: 'unordered'`, `compare: 'approx'` (with `epsilon`), `mutates: <argIndex>` for in-place
+solutions that return nothing, or `serialize: <fn>` to normalize the result before comparing — used
+with `toList`/`fromList` and `toTree`/`fromTree` from `src/utils/nodeUtil.ts` for the linked-list and
+tree problems. `src/utils/testUtil.test.ts` has one worked example of each and runs with
+`npm run solve harness`.

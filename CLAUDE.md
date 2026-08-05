@@ -19,9 +19,14 @@ the "superseded by algorithm-s" note is gone from `README.md`.
   tier is never part of the query. Real exit code: 0 green, 1 on any failure.
 - `npm run solve:watch <id|slug>` — the same, re-running on save.
 - `npm run solve harness` — the checks for `solve()` itself (`src/utils/testUtil.test.ts`).
-- `npm run new:easy|new:medium|new:hard <id> <slug>` — scaffold a problem folder. The difficulty is
-  the script name, so it can never be omitted; `<id>` and `<slug>` are both mandatory. Refuses to
-  overwrite, including when the same problem already exists under another difficulty.
+- `npm run new <leetcode-url>` — scaffold a problem folder **from LeetCode**, statement and cases
+  included. Takes the problem URL (any suffix or query string, `leetcode.cn` too) or a bare slug;
+  the id, title and difficulty tier all come from the API, so none of them can be typed wrong.
+  Needs network access. See "Scaffolding from a URL" below for what it can and cannot extract.
+- `npm run new:easy|new:medium|new:hard <id> <slug>` — scaffold an **empty** problem folder, offline.
+  The difficulty is the script name, so it can never be omitted; `<id>` and `<slug>` are both
+  mandatory.
+- Both refuse to overwrite, including when the same problem already exists under another difficulty.
 - `npm run typecheck` — `tsc --noEmit` over `src` and `scripts`.
 - No linter and no build step.
 
@@ -45,10 +50,13 @@ why `scripts/run.js` resolves problems to file paths rather than handing `node` 
 - Ids are zero-padded to 4 digits so directories sort numerically. The tier folders are for
   browsing only; nothing at runtime depends on which one a problem is in.
 - `src/utils/*.ts` — one helper file per value type (`arrUtil`, `strUtil`, `numUtil`, `mapUtil`,
-  `jsUtil`) plus `testUtil` (the harness) and its own `testUtil.test.ts`.
+  `jsUtil`, `nodeUtil`) plus `testUtil` (the harness) and its own `testUtil.test.ts`.
 - `scripts/*.js` — plain JS (not type-stripped TS, since they are the tooling). `problems.js` is the
   shared filesystem scanner behind `help.js`, `run.js` and `new.js`; add problem-discovery logic
   there rather than duplicating a scan.
+- `scripts/leetcode.js` — everything that talks to leetcode.com: URL parsing, the GraphQL fetch, and
+  turning a question into the three file bodies. It never touches the filesystem, so `new.js` can
+  fetch and parse in full before it writes anything.
 - `scripts/reporter.js` — a custom `node:test` reporter that `run.js` passes via `--test-reporter`.
 
 ## Test output
@@ -74,10 +82,16 @@ needs `--`, since npm eats leading flags).
    parameter and return types added.
 2. Alternative solutions below it as `<name>2`, `<name>3` — also exported, so the harness can run
    them. Local helpers stay unexported arrow consts.
-3. Nothing else. No imports, no separator line, no printing.
+3. Nothing else. No separator line, no printing. The one allowed import is `#utils/nodeUtil.ts`,
+   for the problems whose parameters are a `ListNode` or `TreeNode` — it is side-effect free, so
+   "importing `a.ts` runs nothing" still holds.
 
 If a solution can fall through without returning (`twoSum` does), type the return as
 `T | undefined` rather than adding a `return` LeetCode never asked for.
+
+A **freshly scaffolded** `a.ts` is the exception: `tsc` rejects an empty body for any return type
+that is not exactly `void`/`any`/`undefined` (TS2355 — a `| undefined` union does not satisfy it),
+so the scaffold carries a placeholder `return undefined;`. Delete it when you write the solution.
 
 ## `a.test.ts` convention
 
@@ -106,8 +120,39 @@ cannot corrupt the next variant. `structuredClone` cannot clone functions.
 - `compare: 'approx'` — numeric, `epsilon` defaults to `1e-9`. For float accumulation.
 - `mutates: <index>` — assert on `args[index]` after the call instead of the return value, for
   in-place/void solutions.
+- `serialize: <fn>` — normalize the asserted value before comparing. For `ListNode`/`TreeNode`
+  returns: write `expected` as the array LeetCode prints and pass `fromList`/`fromTree`. This is not
+  cosmetic — `structuredClone` strips the prototype off the cloned args, so a solution that splices
+  nodes out of its input returns plain objects, and `deepStrictEqual` compares prototypes.
 - `name` — replaces the auto-generated `case N: (args) → expected` label.
 - `skip` / `only`.
+
+## Scaffolding from a URL
+
+`npm run new <url>` reads LeetCode's public GraphQL endpoint (no auth). `metaData` is what drives
+the generated `a.test.ts` — it carries the parameter names and types, the return type, and
+`output.paramindex`, which maps straight onto `mutates`.
+
+What it produces per problem shape:
+
+- plain params and return → a direct case.
+- `return.type: 'void'` + `output.paramindex: N` → `mutates: N` (48 Rotate Image, 88 Merge Sorted
+  Array).
+- a return value **and** a partial array view (`Output: 2, nums = [1,2,_]`, 26) → two cases. One
+  `Case` asserts on the return **or** `args[mutates]`, never both, and `_` means "unspecified", which
+  `deepStrictEqual` has no wildcard for — so the second case is emitted with a `//TODO` saying it
+  fails as written.
+- `ListNode`/`TreeNode` → `toList`/`toTree` args plus `serialize: fromList`/`fromTree`.
+- `systemdesign: true` (146 LRU Cache) → refuses. The input is a sequence of calls against a class,
+  which `solve(title, {fn}, cases)` has no shape for.
+
+It also infers `compare`, noting why on the first case it applies to: `"in any order"` in the
+statement → `'unordered'`; a `double` return type → `'approx'`. Both are guesses — delete the option
+if it is wrong for the problem.
+
+Anything it cannot parse becomes a warning on stdout rather than a silently wrong case. Statements
+come in two HTML shapes (an older `<pre>` block and a newer `<div class="example-block">`); both are
+normalized to the `<pre>` form the existing `q.md` files use.
 
 ## TypeScript
 

@@ -11,6 +11,7 @@
     "help": "node scripts/help.js",
     "solve": "node scripts/run.js",
     "solve:watch": "node scripts/run.js --watch",
+    "new": "node scripts/new.js",
     "new:easy": "node scripts/new.js easy",
     "new:medium": "node scripts/new.js medium",
     "new:hard": "node scripts/new.js hard",

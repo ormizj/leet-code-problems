@@ -13,6 +13,8 @@ export type Case = {
     //assert on args[i] after the call instead of the return value, for in-place solutions
     mutates?: number;
     epsilon?: number;
+    //normalize the asserted value before comparing, for node graphs — see nodeUtil
+    serialize?: (value: unknown) => unknown;
     name?: string;
     only?: boolean;
     skip?: boolean;
@@ -67,8 +69,9 @@ export const solve = (title: string, solutions: Record<string, Solution>, cases:
                     it(caseLabel(aCase, index), { skip: aCase.skip, only: aCase.only }, () => {
                         const args = cloneArgs(aCase.args);
                         const returned = solution(...args);
+                        const actual = aCase.mutates === undefined ? returned : args[aCase.mutates];
 
-                        assertCase(aCase.mutates === undefined ? returned : args[aCase.mutates], aCase);
+                        assertCase(aCase.serialize === undefined ? actual : aCase.serialize(actual), aCase);
                     });
                 });
             });
