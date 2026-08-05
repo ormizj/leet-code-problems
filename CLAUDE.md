@@ -89,9 +89,10 @@ needs `--`, since npm eats leading flags).
 If a solution can fall through without returning (`twoSum` does), type the return as
 `T | undefined` rather than adding a `return` LeetCode never asked for.
 
-A **freshly scaffolded** `a.ts` is the exception: `tsc` rejects an empty body for any return type
-that is not exactly `void`/`any`/`undefined` (TS2355 — a `| undefined` union does not satisfy it),
-so the scaffold carries a placeholder `return undefined;`. Delete it when you write the solution.
+A **freshly scaffolded** `a.ts` keeps LeetCode's own return type verbatim and never widens it —
+whether a solution falls through is the solver's call, not something the scaffold can know. Its
+body is a placeholder `throw new Error('TODO');`, which satisfies every return type (`tsc` rejects
+an *empty* body for anything but `void`/`any`/`undefined`, TS2355). Replace it with the solution.
 
 ## `a.test.ts` convention
 
