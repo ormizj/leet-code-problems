@@ -8,8 +8,7 @@ export const lengthOfLongestSubstring = function (s: string): number {
     let found = new Map<string, true>();
     let left = 0;
     let right = 0;
-    for (let i = 0; i < s.length; i++) {
-        if (!(right < s.length)) break;
+    while (right < s.length) {
 
         const el = s[right];
         if (found.has(el)) {
@@ -17,15 +16,17 @@ export const lengthOfLongestSubstring = function (s: string): number {
                 found.delete(s[left]);
                 left++;
             }
+            // left now reached the copy, so skip it
+            left++;
+
         } else {
             found.set(el, true);
-            right++;
+            longest = Math.max(longest, right + 1 - left)
         }
 
-        console.log(found);
-        longest = Math.max(longest, right - left)
+        right++;
     }
-    console.log(found);
+
     return longest;
 };
 
