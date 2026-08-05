@@ -1,6 +1,9 @@
 /**
  * @param {string[]} strs
  * @return {string[][]}
+ *
+ * possible improvement hash map keyed by a 26-slot character
+ * (no need to sort, only nested loop over the string)
  */
 export const groupAnagrams = function (strs: string[]): string[][] {
     const anagrams: string[][] = [];
