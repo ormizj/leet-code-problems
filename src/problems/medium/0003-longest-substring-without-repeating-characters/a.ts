@@ -2,11 +2,12 @@
  * @param {string} s
  * @return {number}
  *
+ * can improve by using a map with the last index of a found letter
  */
 export const lengthOfLongestSubstring = function (s: string): number {
     let longest: number = 0;
 
-    let found = new Set<string>();
+    const found = new Set<string>();
     let left = 0;
     let right = 0;
     while (right < s.length) {
