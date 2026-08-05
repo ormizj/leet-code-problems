@@ -32,9 +32,14 @@ returns `{ id, slug, difficulty, dir, testFile }`.
 - `<dir>/q.md` — the statement and, crucially, the **constraints**. Input bounds decide whether an
   O(n²) is actually fine or actually a TLE. Line 3 is the canonical LeetCode URL; take the slug from
   there rather than rebuilding it.
-- `<dir>/a.ts` — every exported variant (`name`, `name2`, `name3`). Review each one on its own.
-- `<dir>/a.test.ts` — only to see which variants are registered in `solve()`. Do not judge the case
-  list; coverage is not your job here.
+- `<dir>/a.ts` — **only the primary export**, the one with no numeric suffix. That is the solution
+  under review.
+- `<dir>/a.test.ts` — skip it. Coverage is not your job here.
+
+**Suffixed variants (`name2`, `name3`) are archived alternate approaches, not submissions.** Ignore
+them completely: do not review them, do not grade them, do not report their complexity, do not
+suggest deleting them, and do not care whether they are registered in `solve()`. An unregistered
+variant is the intended state, not dead code.
 
 ## 3. Look up what the top answers actually do
 
@@ -55,11 +60,10 @@ solutions; this is my own complexity analysis" is an acceptable report. A fabric
 `Suboptimal — O(n²) where the accepted answer is O(n).` /
 `Optimal. Nothing to fix on complexity.`
 
-**Complexity** — per variant: the actual time and space with the reasoning that gets you there, then
-the best known complexity, then the *name* of the optimal approach (sliding window, monotonic stack,
+**Complexity** — the solution's actual time and space with the reasoning that gets you there, then the
+best known complexity, then the *name* of the optimal approach (sliding window, monotonic stack,
 prefix sums, binary search on the answer, …). Check it against the constraints in `q.md` — say
-outright whether it passes or TLEs at the stated bounds. If one variant in the file is strictly
-dominated by another, say which one to delete.
+outright whether it passes or TLEs at the stated bounds.
 
 **What the top answers do differently** — the concrete technique, not vibes. If the solution already
 matches the accepted approach, one line and move on.
@@ -74,11 +78,9 @@ matches the accepted approach, one line and move on.
   the `.ts` extension, utils go through `#utils/`, type-only imports use `import type`.
 - The return type is widened to `| undefined` only when the solution genuinely falls through.
 - 4-space indent, semicolons, single quotes or backticks, no comments beyond the JSDoc.
-- **A variant exported from `a.ts` but missing from the `solutions` object in `a.test.ts`.** The whole
-  point of the `<name>2` convention is that the harness runs it; an unregistered variant is dead code.
 - Hand-rolled logic that duplicates something already in `src/utils/*Util.ts`.
 - Run `npm run typecheck` and report anything it flags in this problem's files. It is repo-wide —
-  ignore hits in other problems.
+  ignore hits in other problems, and ignore hits inside suffixed variants.
 
 **Interview readability** — naming, unnecessary cleverness, whether the approach can be explained out
 loud in thirty seconds. `left`/`right` beat `i`/`j` in a two-pointer; a one-liner nobody can trace is
@@ -99,6 +101,6 @@ two bullets when the solution is clean; there is nothing to summarize at length.
 - Every criticism names the specific line or construct and why the alternative is better.
 - Never invent a problem to look rigorous. If the solution is optimal and clean, the report is short
   and says so. "Don't go easy" means don't flatter — it does not mean manufacture faults.
-- Out of scope: hunting edge cases, judging test coverage, running `npm run solve`. LeetCode's judge
-  owns correctness.
+- Out of scope: hunting edge cases, judging test coverage, running `npm run solve`, and anything about
+  the suffixed archive variants. LeetCode's judge owns correctness.
 - End by offering to apply the fixes. Do not apply them unasked.
