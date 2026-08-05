@@ -23,7 +23,7 @@ export const lengthOfLongestSubstring = function (s: string): number {
 
         } else {
             found.add(el);
-            longest = Math.max(longest, right + 1 - left)
+            longest = Math.max(longest, right + 1 - left);
         }
 
         right++;
