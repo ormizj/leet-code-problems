@@ -103,7 +103,9 @@ touch either file:
 
 1. LeetCode's JSDoc block, kept as-is, then the solution as
    `export const <camelCaseName> = function (...) {...}` (the shape LeetCode hands you) with TS
-   parameter and return types added.
+   parameter and return types added. A `ListNode`/`TreeNode` problem keeps LeetCode's second block —
+   the `Definition for …` one — above the `@param`/`@return` one, in the form its **TypeScript**
+   snippet writes it, since that is the class `nodeUtil` exports.
 2. Alternative solutions below it as `<name>2`, `<name>3` — also exported, so the harness can run
    them. Local helpers stay unexported arrow consts.
 3. Nothing else. No separator line, no printing. The one allowed import is `#utils/nodeUtil.ts`,
@@ -167,7 +169,8 @@ What it produces per problem shape:
   `Case` asserts on the return **or** `args[mutates]`, never both, and `_` means "unspecified", which
   `deepStrictEqual` has no wildcard for — so the second case is emitted with a `//TODO` saying it
   fails as written.
-- `ListNode`/`TreeNode` → `toList`/`toTree` args plus `serialize: fromList`/`fromTree`.
+- `ListNode`/`TreeNode` → `toList`/`toTree` args plus `serialize: fromList`/`fromTree`, and the
+  `Definition for …` block from the TypeScript snippet kept above the JSDoc in `a.ts`.
 - `systemdesign: true` (146 LRU Cache) → refuses. The input is a sequence of calls against a class,
   which `solve(title, {fn}, cases)` has no shape for.
 
