@@ -1,5 +1,7 @@
 import { describe, it } from 'node:test';
+import type { TestContext } from 'node:test';
 import assert from 'node:assert/strict';
+import { format } from 'node:util';
 import { arrDeepSortedCopy } from '#utils/arrUtil.ts';
 
 export type Solution = (...args: any[]) => unknown;
@@ -61,15 +63,48 @@ const assertCase = (actual: unknown, { expected, compare = 'deep', epsilon = def
 //structuredClone cannot clone functions, which no LeetCode-shaped input needs
 const cloneArgs = (args: unknown[]): unknown[] => structuredClone(args);
 
+//node hands a child's raw stdout to the reporter with no idea which test wrote it, so what a
+//solution prints is captured here and replayed as diagnostics, which do carry their test.
+//the marker is what tells the reporter's own lines apart from node's — scripts/reporter.js
+export const logMark = '⟦log⟧';
+export const errMark = '⟦err⟧';
+
+const consoleMethods = [
+    ['log', logMark],
+    ['info', logMark],
+    ['debug', logMark],
+    ['error', errMark],
+    ['warn', errMark],
+] as const;
+
+//the marked line is what a solution printed, ready to hand to t.diagnostic
+const captureLogs = <T>(run: () => T, onLine: (line: string) => void): T => {
+    const original = consoleMethods.map(([method, mark]) => [method, mark, console[method]] as const);
+
+    for (const [method, mark] of original) {
+        console[method] = (...args: unknown[]) => onLine(`${mark}${format(...args)}`);
+    }
+
+    try {
+        return run();
+    } finally {
+        for (const [method, , fn] of original) console[method] = fn;
+    }
+}
+
 export const solve = (title: string, solutions: Record<string, Solution>, cases: Case[]) => {
     describe(title, () => {
         for (const [name, solution] of Object.entries(solutions)) {
             describe(name, () => {
                 cases.forEach((aCase, index) => {
-                    it(caseLabel(aCase, index), { skip: aCase.skip, only: aCase.only }, () => {
+                    it(caseLabel(aCase, index), { skip: aCase.skip, only: aCase.only }, (t: TestContext) => {
                         const args = cloneArgs(aCase.args);
-                        const returned = solution(...args);
+                        const logged: string[] = [];
+                        const returned = captureLogs(() => solution(...args), (line) => logged.push(line));
                         const actual = aCase.mutates === undefined ? returned : args[aCase.mutates];
+
+                        //emitted before the assertion, so a failing case still shows what it printed
+                        for (const line of logged) t.diagnostic(line);
 
                         assertCase(aCase.serialize === undefined ? actual : aCase.serialize(actual), aCase);
                     });

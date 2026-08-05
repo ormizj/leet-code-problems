@@ -68,12 +68,36 @@ error object for every failed assertion, which buries the actual information. It
   crash. A thrown error still gets a stack, trimmed to frames in this repo's own `src/`.
 - Lists **passes first and failures last** within each solution, so the failures sit next to the
   summary line instead of scattered through the output.
+- Prints **what a solution logged under the case that logged it**, as `› <line>` above that case's
+  `expected`/`actual` (`console.error`/`warn` in red). See "Printing from a solution" below.
 - Buffers results and prints on the run-level `test:summary` event (the one with no `file`), which
   is what makes the reordering possible. Watch mode reuses one reporter instance across runs, so
   the buffers are reset after each summary — a leak there shows up as duplicated output.
 
 Pass your own `--test-reporter` to opt out, e.g. `npm run solve 1 --test-reporter=spec` (that one
 needs `--`, since npm eats leading flags).
+
+### Printing from a solution
+
+`console.log` inside a solution works and needs nothing special. How it gets there matters if you
+touch either file:
+
+- `node --test` runs each test file in a child process and hands the child's raw output to the
+  reporter as `test:stdout` / `test:stderr` events. **Those events carry no test name, and they all
+  arrive before the first `test:start`** — the pipe is separate from the structured event channel.
+  Attribution is impossible from the reporter alone.
+- So `solve()` swaps `console.log`/`info`/`debug`/`error`/`warn` for the duration of each
+  `solution(...args)` call, formats the arguments with `util.format` exactly as `console` would, and
+  replays each line through `t.diagnostic()`. Those events *do* arrive in order, right after their
+  own test's `test:pass`/`test:fail`. The console is restored in a `finally`.
+- Each replayed line is tagged with `logMark` / `errMark` (`⟦log⟧` / `⟦err⟧`, exported from
+  `testUtil.ts` and **duplicated as a literal in `reporter.js`** — keep the two in step). The mark is
+  what separates a solution's output from node's own diagnostics (`tests 3`, `duration_ms`), which
+  are dropped.
+- Anything the swap cannot catch — a top-level log in `a.ts`, a bare `process.stdout.write`, a log
+  from a `setTimeout` that fires after the case ended — still arrives as `test:stdout` and is printed
+  in a `── stdout ──` block after the tree, above the summary. When more than one file logged, the
+  rule names the problem.
 
 ## `a.ts` convention
 

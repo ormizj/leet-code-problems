@@ -46,6 +46,17 @@ solve('testUtil: serialize tree', { identity }, [
     { args: [toTree([1, null, 2, 3])], expected: [1, null, 2, 3], serialize: fromTree },
 ]);
 
+//console is swapped for the duration of the call, so what a solution prints lands under its case
+const realLog = console.log;
+const logging = (any: unknown) => {
+    console.log('printed from a solution:', any);
+    return console.log === realLog ? 'not captured' : any;
+};
+
+solve('testUtil: captures console', { logging }, [
+    { args: [1], expected: 1 },
+]);
+
 solve('testUtil: name and skip', { identity }, [
     { args: [1], expected: 1, name: 'a custom label' },
     { args: ['unreachable'], expected: 'never asserted', skip: true },

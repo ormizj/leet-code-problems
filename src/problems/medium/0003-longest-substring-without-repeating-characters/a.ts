@@ -12,7 +12,6 @@ export const lengthOfLongestSubstring = function (s: string): number {
         while (fast < s.length) {
             const el = s[fast];
             if (found.has(el)) {
-                console.log(el);
                 found.clear();
                 longest = Math.max(longest, i - fast);
                 break;
