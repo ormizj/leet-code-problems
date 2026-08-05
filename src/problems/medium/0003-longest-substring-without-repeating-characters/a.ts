@@ -1,11 +1,12 @@
 /**
  * @param {string} s
  * @return {number}
+ *
  */
 export const lengthOfLongestSubstring = function (s: string): number {
     let longest: number = 0;
 
-    let found = new Map<string, true>();
+    let found = new Set<string>();
     let left = 0;
     let right = 0;
     while (right < s.length) {
@@ -20,7 +21,7 @@ export const lengthOfLongestSubstring = function (s: string): number {
             left++;
 
         } else {
-            found.set(el, true);
+            found.add(el);
             longest = Math.max(longest, right + 1 - left)
         }
 
