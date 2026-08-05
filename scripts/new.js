@@ -1,4 +1,5 @@
 import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import {
     problemsRoot,
@@ -23,6 +24,19 @@ Example: npm run new https://leetcode.com/problems/two-sum/
 const reject = (message) => {
     console.error(`${message}\n\n${usage}`);
     process.exit(1);
+}
+
+//best effort and never fatal — a machine with no clipboard tool still scaffolds fine
+const copyToClipboard = (text) => {
+    const tools = {
+        darwin: [['pbcopy', []]],
+        win32: [['clip', []]],
+    }[process.platform] ?? [['wl-copy', []], ['xclip', ['-selection', 'clipboard']]];
+
+    return tools.some(([tool, args]) => {
+        const { error, status } = spawnSync(tool, args, { input: text });
+        return error === undefined && status === 0;
+    });
 }
 
 const camelCase = (kebab) =>
@@ -53,9 +67,11 @@ const create = (difficulty, id, slug, files) => {
     writeFileSync(join(dir, answerFileName), files.answer);
     writeFileSync(join(dir, testFileName), files.test);
 
+    const command = `npm run solve ${Number(id)}`;
+
     console.log(`Created ${dir}`);
     console.log(`  ${questionFileName}  ${answerFileName}  ${testFileName}`);
-    console.log(`\nRun it with: npm run solve ${Number(id)}`);
+    console.log(`\nRun it with: ${command}${copyToClipboard(command) ? '  (copied to clipboard)' : ''}`);
 }
 
 const blank = (id, slug) => {
