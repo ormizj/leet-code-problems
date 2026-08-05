@@ -1,4 +1,4 @@
-import { TreeNode } from '#utils/nodeUtil.ts';
+import {TreeNode} from '#utils/nodeUtil.ts';
 
 /**
  * Definition for a binary tree node.
@@ -18,5 +18,17 @@ import { TreeNode } from '#utils/nodeUtil.ts';
  * @return {number[][]}
  */
 export const levelOrder = function (root: TreeNode | null): number[][] {
-    throw new Error('TODO');
+    if (!root) return [];
+
+    const res: number[][] = [];
+    const searchTree = (root: TreeNode | null, index: number) => {
+        if (!root) return;
+        if (!res[index]) res[index] = [];
+        res[index].push(root.val);
+        searchTree(root.left, index + 1)
+        searchTree(root.right, index + 1)
+    }
+    searchTree(root, 0);
+
+    return res;
 };
