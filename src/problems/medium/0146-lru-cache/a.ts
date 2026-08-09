@@ -1,14 +1,29 @@
 export class LRUCache {
+    #cache: Map<number, number> = new Map();
+    readonly #capacity: number;
+
     constructor(capacity: number) {
-        throw new Error('TODO');
+        this.#capacity = capacity;
     }
 
     get(key: number): number {
-        throw new Error('TODO');
+        const value = this.#cache.get(key);
+        if (value === undefined) return -1;
+        this.#touch(key, value);
+        return value;
     }
 
     put(key: number, value: number): void {
-        throw new Error('TODO');
+        if (!this.#cache.has(key) && this.#cache.size >= this.#capacity) {
+            const firstKey = this.#cache.keys().next().value;
+            this.#cache.delete(firstKey!);
+        }
+        this.#touch(key, value);
+    }
+
+    #touch(key: number, value: number) {
+        this.#cache.delete(key);
+        this.#cache.set(key, value);
     }
 }
 
