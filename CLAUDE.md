@@ -106,6 +106,7 @@ touch either file:
    parameter and return types added. A `ListNode`/`TreeNode` problem keeps LeetCode's second block —
    the `Definition for …` one — above the `@param`/`@return` one, in the form its **TypeScript**
    snippet writes it, since that is the class `nodeUtil` exports.
+   A design problem exports a `class` instead — see "Design problems" below.
 2. Alternative solutions below it as `<name>2`, `<name>3` — also exported, so the harness can run
    them. Local helpers stay unexported arrow consts.
 3. Nothing else. No separator line, no printing. The one allowed import is `#utils/nodeUtil.ts`,
@@ -154,6 +155,9 @@ cannot corrupt the next variant. `structuredClone` cannot clone functions.
 - `name` — replaces the auto-generated `case N: (args) → expected` label.
 - `skip` / `only`.
 
+A design problem passes its class through `drive` and needs none of these — see "Design problems"
+below.
+
 ## Scaffolding from a URL
 
 `npm run new <url>` reads LeetCode's public GraphQL endpoint (no auth). `metaData` is what drives
@@ -171,8 +175,9 @@ What it produces per problem shape:
   fails as written.
 - `ListNode`/`TreeNode` → `toList`/`toTree` args plus `serialize: fromList`/`fromTree`, and the
   `Definition for …` block from the TypeScript snippet kept above the JSDoc in `a.ts`.
-- `systemdesign: true` (146 LRU Cache) → refuses. The input is a sequence of calls against a class,
-  which `solve(title, {fn}, cases)` has no shape for.
+- `systemdesign: true` (146 LRU Cache) → a class in `a.ts` and one `drive` case per example. See
+  "Design problems" below. A `manual: true` problem (297 Serialize and Deserialize Binary Tree) is
+  still not handled — its metadata is a third shape again.
 
 It also infers `compare`, noting why on the first case it applies to: `"in any order"` in the
 statement → `'unordered'`; a `double` return type → `'approx'`. Both are guesses — delete the option
@@ -181,6 +186,40 @@ if it is wrong for the problem.
 Anything it cannot parse becomes a warning on stdout rather than a silently wrong case. Statements
 come in two HTML shapes (an older `<pre>` block and a newer `<div class="example-block">`); both are
 normalized to the `<pre>` form the existing `q.md` files use.
+
+The example scanner reads both label shapes: `Input: nums = [1,2]` with the value on the label line,
+and a bare `Input` with the value on the lines below it — which is the only shape design statements
+use. A bare label has to be the whole line, since that is what tells `Output` from prose.
+
+## Design problems
+
+A `systemdesign: true` problem gives you a class and a sequence of calls, not a function. Its
+`metaData` carries none of what the function path reads — no `name`, and a top-level `params` and
+`return` that are meaningless (155 Min Stack reports `return: {type: 'boolean'}` for a class with
+four methods). What it carries is `classname`, `constructor.params` and `methods`.
+
+`a.ts` exports the class, straight from LeetCode's TypeScript snippet, with its
+`Your <Class> object will be instantiated…` block left **below** it where LeetCode writes it. No
+constructor parameter properties — declare the fields (see "TypeScript" below).
+
+`a.test.ts` uses `drive` from `#utils/testUtil.ts`, which wraps the class into a plain `Solution`
+with LeetCode's own driver signature — so `solve`, `Case` and every option above work unchanged:
+
+```ts
+import { solve, drive } from '#utils/testUtil.ts';
+import { LRUCache } from './a.ts';
+
+solve('146. LRU Cache', { LRUCache: drive(LRUCache) }, [
+    { args: [['LRUCache', 'put', 'get'], [[2], [1, 1], [1]]], expected: [null, null, 1], name: 'example 1' },
+]);
+```
+
+`args` is the pair of arrays LeetCode prints: the op list, whose first entry constructs, and the
+argument list for each op. `drive` maps the constructor's slot to `null`, and a `void` method
+returns `undefined` in JS, which is the `null` LeetCode prints for it. A second approach is
+`{ LRUCache: drive(LRUCache), LRUCache2: drive(LRUCache2) }` — the `structuredClone` of `args` means
+each variant gets its own instance per case. Cases are scaffolded with an explicit `name`, since the
+generated label would be truncated previews of two long arrays.
 
 ## TypeScript
 

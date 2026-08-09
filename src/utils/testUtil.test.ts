@@ -1,4 +1,4 @@
-import { solve } from '#utils/testUtil.ts';
+import { solve, drive } from '#utils/testUtil.ts';
 import { toList, fromList, toTree, fromTree, ListNode } from '#utils/nodeUtil.ts';
 
 //guards the harness itself — each case exercises one option of `solve`
@@ -55,6 +55,25 @@ const logging = (any: unknown) => {
 
 solve('testUtil: captures console', { logging }, [
     { args: [1], expected: 1 },
+]);
+
+//a design problem's class, driven by leetcode's own op list — `add` returns void, which is the
+//null in `expected`, and a second case would fail if the instance leaked across cases
+class Counter {
+    count = 0;
+
+    add(num: number): void {
+        this.count += num;
+    }
+
+    total(): number {
+        return this.count;
+    }
+}
+
+solve('testUtil: drive', { Counter: drive(Counter) }, [
+    { args: [['Counter', 'add', 'total', 'add', 'total'], [[], [2], [], [3], []]], expected: [null, null, 2, null, 5] },
+    { args: [['Counter', 'total'], [[], []]], expected: [null, 0] },
 ]);
 
 solve('testUtil: name and skip', { identity }, [

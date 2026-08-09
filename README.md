@@ -57,3 +57,15 @@ solutions that return nothing, or `serialize: <fn>` to normalize the result befo
 with `toList`/`fromList` and `toTree`/`fromTree` from `src/utils/nodeUtil.ts` for the linked-list and
 tree problems. `src/utils/testUtil.test.ts` has one worked example of each and runs with
 `npm run solve harness`.
+
+A design problem — 146 LRU Cache, 155 Min Stack — exports a class instead, and `drive` replays
+LeetCode's own call sequence against it, so the same `solve` runs it:
+
+```ts
+import { solve, drive } from '#utils/testUtil.ts';
+import { LRUCache } from './a.ts';
+
+solve('146. LRU Cache', { LRUCache: drive(LRUCache) }, [
+    { args: [['LRUCache', 'put', 'get'], [[2], [1, 1], [1]]], expected: [null, null, 1] },
+]);
+```

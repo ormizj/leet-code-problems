@@ -6,6 +6,8 @@ import { arrDeepSortedCopy } from '#utils/arrUtil.ts';
 
 export type Solution = (...args: any[]) => unknown;
 
+export type Design = new (...args: any[]) => Record<string, any>;
+
 export type Compare = 'deep' | 'unordered' | 'approx';
 
 export type Case = {
@@ -90,6 +92,23 @@ const captureLogs = <T>(run: () => T, onLine: (line: string) => void): T => {
     } finally {
         for (const [method, , fn] of original) console[method] = fn;
     }
+}
+
+//a design problem's input is leetcode's own driver: an op list whose first entry names the class
+//and whose rest are method calls, against a matching list of argument lists. wrapping that into a
+//plain Solution is all `solve` needs — the class becomes `(ops, callArgs) => results`
+export const drive = (Design: Design): Solution => (ops: string[], callArgs: unknown[][]) => {
+    const instance = new Design(...callArgs[0]);
+
+    return ops.map((op, index) => {
+        //the first op constructs, and leetcode prints null for that slot
+        if (index === 0) return null;
+
+        assert.ok(typeof instance[op] === 'function', `${Design.name} has no method ${op}`);
+
+        //a void method returns undefined in js, which is the null leetcode prints for it
+        return instance[op](...callArgs[index]) ?? null;
+    });
 }
 
 export const solve = (title: string, solutions: Record<string, Solution>, cases: Case[]) => {
