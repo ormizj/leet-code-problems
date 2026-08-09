@@ -21,7 +21,7 @@ export class LRUCache {
         this.#touch(key, value);
     }
 
-    #touch(key: number, value: number) {
+    #touch(key: number, value: number): void {
         this.#cache.delete(key);
         this.#cache.set(key, value);
     }
