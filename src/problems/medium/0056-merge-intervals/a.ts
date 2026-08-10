@@ -7,20 +7,15 @@ export const merge = function (intervals: number[][]): number[][] {
     const res: number[][] = [intervals[0]];
 
     for (let i = 0; i < intervals.length; i++) {
-        const cur = intervals[i];
-        const nxt = intervals[i + 1]
-        if (nxt === undefined) break;
-
-        const curMax = cur[1];
-        const nxtMin = nxt[0];
+        const newMin: number = intervals[i][0];
+        const newMax: number = intervals[i][1]
 
         const resMin = res[res.length - 1][0];
         const resMax = res[res.length - 1][1];
-        if (curMax >= nxtMin) {
-            const newTail = [resMin, Math.max(resMax, curMax, nxt[1])];
-            res[res.length - 1] = newTail;
+        if (resMax >= newMin) {
+            res[res.length - 1] = [resMin, Math.max(resMax, newMax)];
         } else {
-            res.push([nxt[0], nxt[1]]);
+            res.push([newMin, newMax]);
         }
     }
 
