@@ -16,16 +16,16 @@ export const numIslands = function (grid: string[][]): number {
         visited.add(`${i}-${j}`);
 
         if (value === '1') {
-            traverse(i + 1, j)
-            traverse(i - 1, j)
-            traverse(i, j + 1)
-            traverse(i, j - 1)
+            traverse(i + 1, j);
+            traverse(i - 1, j);
+            traverse(i, j + 1);
+            traverse(i, j - 1);
         }
     }
 
     for (let i = 0; i < grid.length; i++) {
-        const xAxis = grid[i];
-        for (let j = 0; j < xAxis.length; j++) {
+        const row = grid[i];
+        for (let j = 0; j < row.length; j++) {
             if (visited.has(`${i}-${j}`)) {
                 continue;
             }
