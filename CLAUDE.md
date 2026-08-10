@@ -187,9 +187,18 @@ Anything it cannot parse becomes a warning on stdout rather than a silently wron
 come in two HTML shapes (an older `<pre>` block and a newer `<div class="example-block">`); both are
 normalized to the `<pre>` form the existing `q.md` files use.
 
-The example scanner reads both label shapes: `Input: nums = [1,2]` with the value on the label line,
-and a bare `Input` with the value on the lines below it — which is the only shape design statements
-use. A bare label has to be the whole line, since that is what tells `Output` from prose.
+The example scanner reads three label shapes:
+
+- `Input: nums = [1,2]` — the whole value on the label line.
+- a bare `Input` with the value on the lines below it, which is the only shape design statements use.
+  A bare label has to be the whole line, since that is what tells `Output` from prose. It gathers
+  every line until a blank one — a design problem's op list closes on its own line, so stopping at
+  the first balanced line would drop the argument list under it.
+- `Input: grid = [` with the rest below it, which is how a matrix is printed (200 Number of Islands).
+  A label whose value has an unclosed bracket or quote stays open until it closes.
+
+`walkTop` is the single scanner behind both of those bracket/quote judgements and `splitTop`'s
+argument splitting.
 
 ## Design problems
 
