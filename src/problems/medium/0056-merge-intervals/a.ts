@@ -6,7 +6,7 @@ export const merge = function (intervals: number[][]): number[][] {
     intervals.sort((a, b) => a[0] - b[0]);
     const res: number[][] = [intervals[0]];
 
-    for (let i = 0; i < intervals.length; i++) {
+    for (let i = 1; i < intervals.length; i++) {
         const newMin: number = intervals[i][0];
         const newMax: number = intervals[i][1]
 
